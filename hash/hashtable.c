@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include "hash.h"
 
 
@@ -16,7 +18,6 @@ int insert_hash(char* word) {
     for (itor = 0; hashtable[hash_idx][itor] != NULL; ++itor){
         printf("[%d] = %s\n", itor, hashtable[hash_idx][itor]);
     }
-    printf("itor = %d\n", itor);
     hashtable[hash_idx][itor] = newhashword;
   
     return 0;
@@ -44,6 +45,43 @@ void delete_hashtable() {
     }
 }
 
+int readfile(char* filename) {
+    printf("filename = %s\n", filename);
+    char c;
+    char buffer[64];
+    int fd;
+    int idx = 0;
+    int ret;
+    fd = open(filename, O_RDONLY, S_IREAD);
+    while(read(fd, &c, 1)) {
+        if (c == ' ') {
+            buffer[idx] = '\0';
+            printf("word = %s\n", buffer);
+            ret = insert_hash(buffer);
+            idx = 0;
+        } else {
+            buffer[idx] = c;
+            idx++;
+        }
+    }
+
+    return 0;
+}
+
+
+void usage() {
+    printf("usage:\n>./hashtable [filename.txt]\n");
+    exit(0);
+}
+int main(int argc, char* argv[]) {
+    if (argc != 2) usage();
+
+    readfile(argv[1]);
+    print_hashtable();
+    return 0;
+}
+
+/*
 int main(int argc, char* argv[]){
     int instrlen;
     char* test_str0;
@@ -72,3 +110,4 @@ int main(int argc, char* argv[]){
     free(test_str0);
     return 0;
 }
+*/
